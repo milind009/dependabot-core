@@ -114,6 +114,18 @@ RSpec.describe Dependabot::Python::FileUpdater::PoetryFileUpdater do
       end
     end
 
+    context "with path dependencies" do
+      let(:pyproject_fixture_name) { "path_dependency.toml" }
+      let(:lockfile_fixture_name) { "path_dependency.lock" }
+
+      it "updates the lockfile successfully" do
+        updated_lockfile = updated_files.find { |f| f.name == "pyproject.lock" }
+        lockfile_obj = TomlRB.parse(updated_lockfile.content)
+        toml = lockfile_obj["package"].find { |d| d["name"] == "toml" }
+        expect(toml["version"]).to be_nil
+      end
+    end
+
     context "without a lockfile" do
       let(:dependency_files) { [pyproject] }
       let(:pyproject_fixture_name) { "caret_version.toml" }
